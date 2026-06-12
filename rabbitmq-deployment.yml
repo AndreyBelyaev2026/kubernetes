@@ -6,12 +6,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      link_converter: backend
+      link_converter: rabbitmq
   template:
     metadata:
       name: rabbitmq
       labels:
-        link_converter: backend
+        link_converter: rabbitmq
     spec:
       containers:
       - name: rabbitmq
@@ -29,9 +29,15 @@ spec:
           - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
             value: "0.7"
           - name: SEED_USERNAME 
-            value: demo
+            valueFrom:
+                    secretKeyRef:
+                      name: conv-api-secret
+                      key: AMQP_USER
           - name: SEED_USER_PASSWORD
-            value: demo
+            valueFrom:
+                    secretKeyRef:
+                      name: conv-api-secret
+                      key: AMQP_PASSWORD
         volumeMounts:
           - name: rabbitmq-data
             mountPath: /var/lib/rabbitmq

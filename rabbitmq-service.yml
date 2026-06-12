@@ -4,7 +4,7 @@ metadata:
   name: rabbitmq-clusterip
 spec:
   selector:
-    link_converter: backend
+    link_converter: rabbitmq
   ports:
   - port: 15672
     protocol: TCP
