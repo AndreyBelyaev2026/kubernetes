@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-clusterip
+spec:
+  selector:
+    link_converter: backend
+  ports:
+  - port: 15672
+    protocol: TCP
+  - port: 5672
+    protocol: TCP
