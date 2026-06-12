@@ -28,9 +28,9 @@ spec:
         env:
           - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
             value: "0.7"
-          - name: SEEDUSERNAME
+          - name: SEED_USERNAME 
             value: demo
-          - name: SEEDUSER_PASSWORD
+          - name: SEED_USER_PASSWORD
             value: demo
 
         # --- LIVENESS PROBE (Проверка жизнеспособности) ---
@@ -68,3 +68,7 @@ spec:
             - check_running
           failureThreshold: 30      # Даем до 30 попыток
           periodSeconds: 10         # 30 * 10 = 300 секунд (5 минут) на полный запуск
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
