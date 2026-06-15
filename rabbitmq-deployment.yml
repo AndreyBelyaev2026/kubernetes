@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      link_converter: rabbitmq
+  template:
+    metadata:
+      name: rabbitmq
+      labels:
+        link_converter: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.12-management
+        resources:
+          limits:
+            memory: "400Mi"
+            cpu: "2000m"
+        ports:
+          - containerPort: 5672
+            name: amqp
+          - containerPort: 15672
+            name: management
+        env:
+          - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
+            value: "0.7"
+          - name: SEED_USERNAME 
+            valueFrom:
+                    secretKeyRef:
+                      name: conv-api-secret
+                      key: AMQP_USER
+          - name: SEED_USER_PASSWORD
+            valueFrom:
+                    secretKeyRef:
+                      name: conv-api-secret
+                      key: AMQP_PASSWORD
+        volumeMounts:
+          - name: rabbitmq-data
+            mountPath: /var/lib/rabbitmq
+            subPath: rabbitmq
+
+        # --- LIVENESS PROBE (Проверка жизнеспособности) ---
+        # Проверяет, запущен ли узел RabbitMQ и отвечает ли он на RPC-запросы.
+        livenessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - check_running
+          initialDelaySeconds: 60   # RabbitMQ может долго загружать Mnesia и схемы, даем запас времени
+          periodSeconds: 30         # Проверка каждые 30 сек (чтобы не создавать лишнюю нагрузку)
+          timeoutSeconds: 10        # Таймаут команды
+          failureThreshold: 3       # 3 неудачи = перезапуск пода
+
+        # --- READINESS PROBE (Проверка готовности) ---
+        # Проверяет, может ли узел принимать AMQP-подключения (например, после синхронизации кластера).
+        readinessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - check_port_connectivity
+          initialDelaySeconds: 10   # Начинаем проверять раньше, чем liveness
+          periodSeconds: 10         # Проверяем чаще для быстрого возврата в строй
+          timeoutSeconds: 5
+          failureThreshold: 3       # 3 неудачи = убрать из Service (прекратить выдачу новых соединений)
+          successThreshold: 1
+
+        # --- STARTUP PROBE (Защита при медленном старте) ---
+        # Критически важна для RabbitMQ с большим количеством очередей/сообщений или в кластере.
+        # Она отключает livenessProbe, пока RabbitMQ полностью не запустится.
+        startupProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - check_running
+          failureThreshold: 30      # Даем до 30 попыток
+          periodSeconds: 10         # 30 * 10 = 300 секунд (5 минут) на полный запуск
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
