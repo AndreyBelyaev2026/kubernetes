@@ -34,3 +34,11 @@ spec:
           timeoutSeconds: 5         # Если нет ответа за 5 сек, считаем провалом
           failureThreshold: 3       # 3 провала подряд = перезагрузка контейнера
           successThreshold: 1       # 1 успех считается достаточным (по умолчанию)
+        volumeMounts:
+          - name: api-config
+            mountPath: /etc/
+            readOnly: true
+      volumes:
+        - name: api-config
+          configMap:
+            name: conv-app-config
