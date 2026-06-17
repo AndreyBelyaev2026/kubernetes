@@ -1,0 +1,15 @@
+app:
+  name: conv-app
+  port: 80
+  link_converter: frontend
+  replicas: 1
+  image: antonlarichev/conv-app
+  imageTag: 1.2
+  resources:
+    limits:
+      memory: "300Mi"
+      cpu: "500m"
+api:
+  port: 80
+ingress:
+  host: conv.test
