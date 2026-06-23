@@ -21,6 +21,6 @@ spec:
         path: "/api"
         backend:
           service:
-            name: {{.Values.app.name}}-clusterip
+            name: {{.Values.api.name}}-clusterip
             port: 
               number: {{.Values.api.port}}

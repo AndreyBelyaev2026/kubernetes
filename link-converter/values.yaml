@@ -43,13 +43,14 @@ rabbitmq:
   ports:
     amqp_port: 5672
     management_port: 15672
-    envs:
-      - SEED_USERNAME 
-      - SEED_USER_PASSWORD
+  envs:
+    - SEED_USERNAME 
+    - SEED_USER_PASSWORD
 
 converter:
   name: converter
   link_converter: converter
+  replicas: 1
   image: antonlarichev/conv-service
   imageTag: 1.0
   resources:
@@ -57,11 +58,11 @@ converter:
       memory: "400Mi"
       cpu: "2000m"
   envs:
-    AMQP_EXCHANGE 
-    AMQP_USER 
-    AMQP_PASSWORD
-    AMQP_HOSTNAME 
-    AMQP_QUEUE
+    - AMQP_EXCHANGE 
+    - AMQP_USER 
+    - AMQP_PASSWORD
+    - AMQP_HOSTNAME 
+    - AMQP_QUEUE
 
 ingress:
   host: conv.test
