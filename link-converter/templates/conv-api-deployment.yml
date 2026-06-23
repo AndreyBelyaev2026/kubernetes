@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.api.name }}-deployment
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      link_converter: {{ .Values.api.link_converter }}
+  template:
+    metadata:
+      name: {{ .Values.api.name }}
+      labels:
+        link_converter: {{ .Values.api.link_converter }}
+    spec:
+      containers:
+      - name: {{ .Values.api.name }}
+        image: "{{ .Values.api.image }}:{{ .Values.api.imageTag }}"
+        resources: {{.Values.app.resources | toYaml | nindent 10 }}
+        ports:
+          - containerPort: {{ .Values.api.port }}
+        volumeMounts:
+          - name: {{ .Values.api.name }}-data
+            mountPath: /opt/app/uploads
+            subPath: {{ .Values.api.name }}
+        env:
+          {{- range .Values.api.envs}}
+          {{- $data := dict "name" $.Values.api.name "env" .}}
+          {{- include "env.template" $data | indent 10}}
+          {{- end}}
+        # --- LIVENESS PROBE ---
+        # Проверяет, не "зависло" ли приложение.
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15   # Ждем 15 сек перед первой проверкой (время на запуск)
+          periodSeconds: 10         # Проверяем каждые 10 секунд
+          timeoutSeconds: 5         # Если нет ответа за 5 сек, считаем провалом
+          failureThreshold: 3       # 3 провала подряд = перезагрузка контейнера
+          successThreshold: 1       # 1 успех считается достаточным (по умолчанию)
+      volumes:
+      - name: {{ .Values.api.name }}-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.api.name }}-pvc
