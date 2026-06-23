@@ -17,7 +17,7 @@ spec:
       - name: {{.Values.app.name}}
         image: "{{.Values.app.image}}:{{.Values.app.imageTag}}"
         resources:
-          limits: {{.Values.app.resources.limits | toYaml | nindent 12}}
+          limits: {{.Values.app.resources | toYaml | nindent 12}}
         ports:
           - containerPort: {{.Values.app.port}}
 
@@ -37,4 +37,4 @@ spec:
         # Автоматически импортирует все ключи из ConfigMap как переменные окружения
         envFrom:
           - configMapRef:
-            name: {{.Values.app.name}}-config
+              name: {{.Values.app.name}}-config

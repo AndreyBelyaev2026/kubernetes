@@ -16,7 +16,7 @@ spec:
       containers:
       - name: {{ .Values.converter.name}}
         image: "{{.Values.converter.image}}:{{ .Values.converter.imageTag }}"
-        resources: {{.Values.app.resources | toYaml | nindent 10 }}
+        resources: {{.Values.converter.resources | toYaml | nindent 10 }}
         env:
           {{- range .Values.api.envs}}
           {{- $data := dict "name" $.Values.api.name "env" .}}

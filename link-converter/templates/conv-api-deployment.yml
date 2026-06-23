@@ -16,7 +16,7 @@ spec:
       containers:
       - name: {{ .Values.api.name }}
         image: "{{ .Values.api.image }}:{{ .Values.api.imageTag }}"
-        resources: {{.Values.app.resources | toYaml | nindent 10 }}
+        resources: {{.Values.api.resources | toYaml | nindent 10 }}
         ports:
           - containerPort: {{ .Values.api.port }}
         volumeMounts:

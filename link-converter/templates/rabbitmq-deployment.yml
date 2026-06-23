@@ -16,7 +16,7 @@ spec:
       containers:
       - name: {{ .Values.rabbitmq.name }}
         image: "{{ .Values.rabbitmq.image}}:{{ .Values.rabbitmq.imageTag }}"
-        resources: {{.Values.app.resources | toYaml | nindent 10 }}
+        resources: {{.Values.rabbitmq.resources | toYaml | nindent 10 }}
         ports:
           - containerPort: {{ .Values.rabbitmq.ports.amqp_port }}
             name: amqp
