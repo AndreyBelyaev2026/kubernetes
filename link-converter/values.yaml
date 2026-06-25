@@ -22,8 +22,6 @@ api:
       memory: "300Mi"
       cpu: "500m"
   amqp_exchange: demo
-  amqp_user: demo
-  amqp_password: demo
   amqp_queue: demo-queue
   envs:
     - AMQP_EXCHANGE 

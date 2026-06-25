@@ -1,5 +1,5 @@
-Вы успешно установили приложение {{ .Chart.Name }}
-Версия: {{ .Chart.Version }}
+You have successfully installed the {{ .Chart.Name }} application
+Version {{ .Chart.Version }}
 
-Имя релиза: {{ .Release.Name }}
-Версия релиза: {{ .Release.Version }}
+Release name {{ .Release.Name }}
+Release version {{ .Release.Version }}
