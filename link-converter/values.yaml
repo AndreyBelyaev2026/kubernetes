@@ -1,0 +1,66 @@
+app:
+  name: conv-app
+  port: 80
+  link_converter: frontend
+  replicas: 1
+  image: antonlarichev/conv-app
+  imageTag: 1.2
+  resources:
+    limits:
+      memory: "300Mi"
+      cpu: "500m"
+
+api:
+  name: conv-api
+  port: 80
+  link_converter: backend
+  replicas: 1
+  image: antonlarichev/conv-api
+  imageTag: 1.0
+  resources:
+    limits:
+      memory: "300Mi"
+      cpu: "500m"
+  amqp_exchange: demo
+  amqp_queue: demo-queue
+  envs:
+    - AMQP_EXCHANGE 
+    - AMQP_USER 
+    - AMQP_PASSWORD
+    - AMQP_HOSTNAME 
+
+rabbitmq:
+  name: rabbitmq
+  link_converter: rabbitmq
+  image: rabbitmq
+  imageTag: 3.12-management
+  resources:
+    limits:
+      memory: "400Mi"
+      cpu: "2000m"
+  ports:
+    amqp_port: 5672
+    management_port: 15672
+  envs:
+    - SEED_USERNAME 
+    - SEED_USER_PASSWORD
+
+converter:
+  name: converter
+  link_converter: converter
+  replicas: 1
+  image: antonlarichev/conv-service
+  imageTag: 1.0
+  resources:
+    limits:
+      memory: "400Mi"
+      cpu: "2000m"
+  envs:
+    - AMQP_EXCHANGE 
+    - AMQP_USER 
+    - AMQP_PASSWORD
+    - AMQP_HOSTNAME 
+    - AMQP_QUEUE
+
+ingress:
+  host: conv.test

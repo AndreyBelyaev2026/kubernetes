@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.app.name}}-deployment
+spec:
+  replicas: {{.Values.app.replicas}}
+  selector:
+    matchLabels:
+      link_converter: {{.Values.app.link_converter}}
+  template:
+    metadata:
+      name: {{.Values.app.name}}
+      labels:
+        link_converter: {{.Values.app.link_converter}}
+    spec:
+      containers:
+      - name: {{.Values.app.name}}
+        image: "{{.Values.app.image}}:{{.Values.app.imageTag}}"
+        resources:
+          limits: {{.Values.app.resources | toYaml | nindent 12}}
+        ports:
+          - containerPort: {{.Values.app.port}}
+
+        # --- LIVENESS PROBE ---
+        # Проверяет, не "зависло" ли приложение.
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15   # Ждем 15 сек перед первой проверкой (время на запуск)
+          periodSeconds: 10         # Проверяем каждые 10 секунд
+          timeoutSeconds: 5         # Если нет ответа за 5 сек, считаем провалом
+          failureThreshold: 3       # 3 провала подряд = перезагрузка контейнера
+          successThreshold: 1       # 1 успех считается достаточным (по умолчанию)
+        
+        # --- CONFIGMAP AS ENV VARS ---
+        # Автоматически импортирует все ключи из ConfigMap как переменные окружения
+        envFrom:
+          - configMapRef:
+              name: {{.Values.app.name}}-config

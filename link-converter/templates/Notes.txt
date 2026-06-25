@@ -1,0 +1,5 @@
+You have successfully installed the {{ .Chart.Name }} application
+Version {{ .Chart.Version }}
+
+Release name {{ .Release.Name }}
+Release version {{ .Release.Version }}

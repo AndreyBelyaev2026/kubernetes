@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.converter.name}}-deployment
+spec:
+  replicas: {{ .Values.converter.replicas}}
+  selector:
+    matchLabels:
+      link_converter: {{ .Values.converter.link_converter}}
+  template:
+    metadata:
+      name: {{ .Values.converter.name}}
+      labels:
+        link_converter: {{ .Values.converter.link_converter}}
+    spec:
+      containers:
+      - name: {{ .Values.converter.name}}
+        image: "{{.Values.converter.image}}:{{ .Values.converter.imageTag }}"
+        resources: {{.Values.converter.resources | toYaml | nindent 10 }}
+        env:
+          {{- range .Values.api.envs}}
+          {{- $data := dict "name" $.Values.api.name "env" .}}
+          {{- include "env.template" $data | indent 10}}
+          {{- end}}
